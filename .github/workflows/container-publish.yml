@@ -69,7 +69,7 @@ jobs:
       - name: checkout to build branch
         run: |
           git fetch origin
-          git checkout ${{ env.BUILD_TAG }}
+          git checkout main
       - name: Log in to the Container registry
         uses: docker/login-action@465a07811f14bebb1938fbed4728c6a1ff8901fc # v2.2.0
         with:
