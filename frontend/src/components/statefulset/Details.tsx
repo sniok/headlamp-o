@@ -41,7 +41,7 @@ export default function StatefulSetDetails(props: {
         item && [
           {
             id: 'headlamp.statefulset-owned-pods',
-            section: <OwnedPodsSection resource={item?.jsonData} />,
+            section: <OwnedPodsSection resource={item} />,
           },
           {
             id: 'headlamp.statefulset-containers',

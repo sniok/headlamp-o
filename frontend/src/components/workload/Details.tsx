@@ -130,7 +130,7 @@ export default function WorkloadDetails<T extends WorkloadClass>(props: Workload
           },
           {
             id: 'headlamp.workload-owned-pods',
-            section: <OwnedPodsSection resource={item?.jsonData} />,
+            section: <OwnedPodsSection resource={item} />,
           },
           {
             id: 'headlamp.workload-containers',

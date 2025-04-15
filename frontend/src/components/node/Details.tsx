@@ -262,7 +262,7 @@ export default function NodeDetails(props: { name?: string; cluster?: string }) 
             },
             {
               id: 'headlamp.node-owned-pods',
-              section: <OwnedPodsSection resource={item?.jsonData} />,
+              section: <OwnedPodsSection resource={item} />,
             },
           ]
         }

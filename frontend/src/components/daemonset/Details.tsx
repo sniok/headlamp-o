@@ -100,7 +100,7 @@ export default function DaemonSetDetails(props: {
       extraSections={item => [
         {
           id: 'headlamp.daemonset-owned-pods',
-          section: <OwnedPodsSection resource={item?.jsonData} />,
+          section: <OwnedPodsSection resource={item} />,
         },
         {
           id: 'headlamp.daemonset-tolerations',

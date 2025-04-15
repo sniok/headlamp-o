@@ -49,9 +49,7 @@ export default function NamespaceDetails(props: { name?: string; cluster?: strin
           },
           {
             id: 'headlamp.namespace-owned-pods',
-            section: (
-              <OwnedPodsSection hideColumns={['namespace']} resource={item?.jsonData} noSearch />
-            ),
+            section: <OwnedPodsSection hideColumns={['namespace']} resource={item} noSearch />,
           },
           {
             id: 'headlamp.namespace-details-view',
