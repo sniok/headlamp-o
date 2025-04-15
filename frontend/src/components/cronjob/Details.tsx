@@ -128,8 +128,8 @@ export default function CronJobDetails(props: {
   const { t, i18n } = useTranslation('glossary');
   const dispatch: AppDispatch = useDispatch();
 
-  const { items: jobs, errors } = Job.useList({ namespace });
   const [cronJob] = CronJob.useGet(name, namespace);
+  const { items: jobs, errors } = Job.useList({ namespace, cluster: cronJob?.cluster });
   const [isSpawnDialogOpen, setIsSpawnDialogOpen] = useState(false);
   const [isPendingSuspend, setIsPendingSuspend] = useState(false);
   const isCronSuspended = cronJob?.spec.suspend;
