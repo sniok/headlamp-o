@@ -175,6 +175,17 @@ const defaultRoutes: {
     noAuthRequired: true,
     component: () => <Home />,
   },
+  advancedSearch: {
+    path: '/advanced-search',
+    exact: true,
+    name: 'Advanced Search',
+    sidebar: 'advancedSearch',
+    component: React.lazy(() =>
+      import('../components/advancedSearch/AdvancedSearch').then(it => ({
+        default: it.AdvancedSearch,
+      }))
+    ),
+  },
   namespaces: {
     path: '/namespaces',
     name: 'Namespaces',
