@@ -68,9 +68,9 @@ export function EmptyResults({
   resources: ApiResource[];
   onQuerySelected: (resources: ApiResource[], query: string) => void;
 }) {
-  const pod = resources.find(it => it.kind === 'Pod')!;
-  const configMap = resources.find(it => it.kind === 'ConfigMap')!;
-  const job = resources.find(it => it.kind === 'Job')!;
+  const pod = resources.find(it => it.kind === 'Pod');
+  const configMap = resources.find(it => it.kind === 'ConfigMap');
+  const job = resources.find(it => it.kind === 'Job');
 
   return (
     <Box sx={{ p: 2, display: 'flex', alignItems: 'center', flexDirection: 'column', gap: 1 }}>
@@ -78,21 +78,27 @@ export function EmptyResults({
         <Trans>Examples</Trans>
       </Typography>
       <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', justifyContent: 'center' }}>
-        <QueryExample onSelect={onQuerySelected} resources={[pod]}>
-          status.phase !== "Running"
-        </QueryExample>
+        {pod && (
+          <QueryExample onSelect={onQuerySelected} resources={[pod]}>
+            status.phase !== "Running"
+          </QueryExample>
+        )}
         <QueryExample onSelect={onQuerySelected} resources={resources}>
           metadata.labels["kubernetes.io/cluster-service"] === "true"
         </QueryExample>
-        <QueryExample onSelect={onQuerySelected} resources={[configMap]}>
-          !!data
-        </QueryExample>
+        {configMap && (
+          <QueryExample onSelect={onQuerySelected} resources={[configMap]}>
+            !!data
+          </QueryExample>
+        )}
         <QueryExample onSelect={onQuerySelected} resources={resources}>
           {`metadata.annotations["deployment.kubernetes.io/revision"] > 10`}
         </QueryExample>
-        <QueryExample onSelect={onQuerySelected} resources={[job]}>
-          {`spec.suspend === false && status.succeeded > 0`}
-        </QueryExample>
+        {job && (
+          <QueryExample onSelect={onQuerySelected} resources={[job]}>
+            {`spec.suspend === false && status.succeeded > 0`}
+          </QueryExample>
+        )}
       </Box>
     </Box>
   );
