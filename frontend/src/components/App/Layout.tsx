@@ -150,6 +150,11 @@ export default function Layout({}: LayoutProps) {
     };
   }, []);
 
+  // Remove any styles from the body
+  useEffect(() => {
+    document.body.removeAttribute('style');
+  }, []);
+
   /**
    * Fetches the cluster config from the backend and updates the redux store
    * if the present stored config is different from the fetched one.
