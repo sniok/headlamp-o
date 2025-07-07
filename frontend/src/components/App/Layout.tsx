@@ -250,19 +250,23 @@ export default function Layout({}: LayoutProps) {
           <TopBar />
           <Box
             sx={{
-              display: 'flex',
+              display: 'grid',
               overflow: 'hidden',
               flexGrow: 1,
               position: 'relative',
+              gridTemplateRows: '1fr min-content',
+              gridTemplateColumns: 'min-content 1fr',
             }}
           >
             <Sidebar />
             <Main
               id="main"
               sx={{
-                flexGrow: 1,
-                marginLeft: 'initial',
                 overflow: 'auto',
+                position: 'relative',
+                minHeight: 0,
+                gridColumn: '2 / 3',
+                gridRow: '1 / 2',
               }}
             >
               {clustersNotInURL.slice(0, MAXIMUM_NUM_ALERTS).map(clusterName => (
