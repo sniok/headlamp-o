@@ -26,7 +26,7 @@ import { Terminal as XTerminal } from '@xterm/xterm';
 import { useSnackbar } from 'notistack';
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { request } from '../../../lib/k8s/apiProxy';
+import { clusterFetch } from '../../../lib/k8s/api/v2/fetch';
 import { KubeContainerStatus } from '../../../lib/k8s/cluster';
 import DaemonSet from '../../../lib/k8s/daemonSet';
 import Deployment from '../../../lib/k8s/deployment';
@@ -103,10 +103,10 @@ export function LogsButton({ item }: LogsButtonProps) {
           );
         }
 
-        const response = await request(
+        const response = await clusterFetch(
           `/api/v1/namespaces/${item.metadata.namespace}/pods?labelSelector=${labelSelector}`,
-          { method: 'GET' }
-        );
+          { cluster: item.cluster }
+        ).then(it => it.json());
 
         if (!response?.items) {
           throw new Error(t('translation|Invalid response from server'));
