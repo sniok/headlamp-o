@@ -36,6 +36,7 @@ import { useTypedSelector } from '../../redux/hooks';
 import store from '../../redux/stores/store';
 import { useUIPanelsGroupedBySide } from '../../redux/uiSlice';
 import { fetchStatelessClusterKubeConfigs, isEqualClusterConfigs } from '../../stateless/';
+import { ActivitiesRenderer } from '../activity/Activity';
 import ActionsNotifier from '../common/ActionsNotifier';
 import AlertNotification from '../common/AlertNotification';
 import DetailsDrawer from '../common/Resource/DetailsDrawer';
@@ -289,6 +290,7 @@ export default function Layout({}: LayoutProps) {
                 </Container>
               </Box>
             </Main>
+            <ActivitiesRenderer />
             <DetailsDrawer />
           </Box>
           {panels.bottom.map(it => (
