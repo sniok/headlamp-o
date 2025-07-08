@@ -18,7 +18,10 @@
  * This module was taken from the k8dash project.
  */
 
+import { getHeadlampAPIHeaders } from '../helpers/getHeadlampAPIHeaders';
 import store from '../redux/stores/store';
+import { backendFetch } from './k8s/api/v2/fetch';
+import { queryClient } from './queryClient';
 
 /**
  * Retrieves the authentication token for a given cluster.
