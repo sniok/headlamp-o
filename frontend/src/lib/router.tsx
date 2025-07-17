@@ -116,6 +116,7 @@ import WorkloadOverview from '../components/workload/Overview';
 import { isElectron } from '../helpers/isElectron';
 import LocaleSelect from '../i18n/LocaleSelect/LocaleSelect';
 import store from '../redux/stores/store';
+import { AgentPage } from './Agent';
 import { getClusterPathParam } from './cluster';
 import { useCluster } from './k8s';
 import DaemonSet from './k8s/daemonSet';
@@ -203,6 +204,11 @@ const defaultRoutes: {
     path: '/namespaces/:name',
     sidebar: 'namespaces',
     component: () => <NamespaceDetails />,
+  },
+  aigent: {
+    path: '/agent',
+    sidebar: 'agent',
+    component: AgentPage,
   },
   nodes: {
     path: '/nodes',

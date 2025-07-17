@@ -147,10 +147,12 @@ export function KubeIcon({
   kind,
   width,
   height,
+  style,
 }: {
   kind: keyof typeof kindToIcon;
   width?: string;
   height?: string;
+  style?: any;
 }) {
   const pluginDefinedIcons = useTypedSelector(state => state.graphView.kindIcons);
 
@@ -176,6 +178,7 @@ export function KubeIcon({
           fill: 'none !important',
         },
       }}
+      style={style}
     >
       {icon}
     </Box>
