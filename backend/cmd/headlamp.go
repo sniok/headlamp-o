@@ -484,6 +484,22 @@ func createHeadlampHandler(config *HeadlampConfig) http.Handler {
 
 	addPluginRoutes(config, r)
 
+	// Setup port forwarding handlers.
+	r.HandleFunc("/clusters/{clusterName}/portforward", func(w http.ResponseWriter, r *http.Request) {
+		portforward.StartPortForward(config.KubeConfigStore, config.cache, w, r)
+	}).Methods("POST")
+
+	r.HandleFunc("/clusters/{clusterName}/portforward", func(w http.ResponseWriter, r *http.Request) {
+		portforward.StopOrDeletePortForward(config.cache, w, r)
+	}).Methods("DELETE")
+
+	r.HandleFunc("/clusters/{clusterName}/portforward/list", func(w http.ResponseWriter, r *http.Request) {
+		portforward.GetPortForwards(config.cache, w, r)
+	})
+	r.HandleFunc("/clusters/{clusterName}/portforward", func(w http.ResponseWriter, r *http.Request) {
+		portforward.GetPortForwardByID(config.cache, w, r)
+	}).Methods("GET")
+
 	config.handleClusterRequests(r)
 
 	r.HandleFunc("/externalproxy", func(w http.ResponseWriter, r *http.Request) {
@@ -675,24 +691,9 @@ func createHeadlampHandler(config *HeadlampConfig) http.Handler {
 		http.Redirect(w, r, oauthConfig.AuthCodeURL(state), http.StatusFound)
 	}).Queries("cluster", "{cluster}")
 
-	r.HandleFunc("/portforward", func(w http.ResponseWriter, r *http.Request) {
-		portforward.StartPortForward(config.KubeConfigStore, config.cache, w, r)
-	}).Methods("POST")
-
-	r.HandleFunc("/portforward", func(w http.ResponseWriter, r *http.Request) {
-		portforward.StopOrDeletePortForward(config.cache, w, r)
-	}).Methods("DELETE")
-
-	r.HandleFunc("/portforward/list", func(w http.ResponseWriter, r *http.Request) {
-		portforward.GetPortForwards(config.cache, w, r)
-	})
-
 	r.HandleFunc("/drain-node", config.handleNodeDrain).Methods("POST")
 	r.HandleFunc("/drain-node-status",
 		config.handleNodeDrainStatus).Methods("GET").Queries("cluster", "{cluster}", "nodeName", "{node}")
-	r.HandleFunc("/portforward", func(w http.ResponseWriter, r *http.Request) {
-		portforward.GetPortForwardByID(config.cache, w, r)
-	}).Methods("GET")
 
 	r.HandleFunc("/oidc-callback", func(w http.ResponseWriter, r *http.Request) {
 		state := r.URL.Query().Get("state")
