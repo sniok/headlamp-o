@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 
-import _ from 'lodash';
+import _, { groupBy } from 'lodash';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { isElectron } from '../../helpers/isElectron';
 import { useSelectedClusters } from '../../lib/k8s';
+import CustomResourceDefinition from '../../lib/k8s/crd';
 import { createRouteURL } from '../../lib/router';
 import { useTypedSelector } from '../../redux/hooks';
 import { DefaultSidebars, SidebarItemProps } from '.';
@@ -48,6 +49,43 @@ const sortSidebarItems = (items: SidebarItemProps[]): SidebarItemProps[] => {
   }));
 };
 
+function useCrdItems() {
+  const clusters = useSelectedClusters();
+  const [crds] = CustomResourceDefinition.useList({ clusters });
+
+  const crdsgrouped = groupBy(crds, it => it.spec.group);
+
+  return useMemo(
+    () => ({
+      label: 'Custom Resources',
+      icon: 'mdi:puzzle',
+      name: 'custom-resources',
+      subList: [
+        {
+          label: 'Instances',
+          name: 'crs',
+        },
+        {
+          label: 'Definitions',
+          name: 'crds',
+        },
+        ...Object.entries(crdsgrouped).map(([group, items]) => ({
+          label: group,
+          name: group,
+          subList: items.map(it => ({
+            label: it.jsonData.spec.names.kind,
+            name: 'customresources' + it.getName(),
+            url: createRouteURL('customresources', {
+              crd: it.getName(),
+            }),
+          })),
+        })),
+      ],
+    }),
+    [crds]
+  );
+}
+
 export const useSidebarItems = (sidebarName: string = DefaultSidebars.IN_CLUSTER) => {
   const clusters = useTypedSelector(state => state.config.clusters) ?? {};
   const settings = useTypedSelector(state => state.config.settings);
@@ -56,6 +94,7 @@ export const useSidebarItems = (sidebarName: string = DefaultSidebars.IN_CLUSTER
   const shouldShowHomeItem = isElectron() || Object.keys(clusters).length !== 1;
   const selectedClusters = useSelectedClusters();
   const { t } = useTranslation();
+  const crd = useCrdItems();
 
   const sidebars = useMemo(() => {
     const homeItems: SidebarItemProps[] = [
@@ -69,16 +108,10 @@ export const useSidebarItems = (sidebarName: string = DefaultSidebars.IN_CLUSTER
         divider: !shouldShowHomeItem,
       },
       {
-        name: 'notifications',
-        icon: 'mdi:bell',
-        label: t('translation|Notifications'),
-        url: '/notifications',
-      },
-      {
-        name: 'settings',
+        name: 'settings-item',
         icon: 'mdi:cog',
         label: t('translation|Settings'),
-        url: '/settings/general',
+        // url: '/settings/general',
         subList: [
           {
             name: 'settingsGeneral',
@@ -104,26 +137,51 @@ export const useSidebarItems = (sidebarName: string = DefaultSidebars.IN_CLUSTER
         icon: 'mdi:home',
         label: t('translation|Home'),
         url: '/',
-        divider: true,
         hide: !shouldShowHomeItem,
       },
       {
+        name: 'settings-item',
+        icon: 'mdi:cog',
+        label: t('translation|Settings'),
+        subList: [
+          {
+            name: 'settingsGeneral',
+            label: t('translation|General'),
+            url: '/settings/general',
+          },
+          {
+            name: 'plugins',
+            label: t('translation|Plugins'),
+            url: '/settings/plugins',
+          },
+          {
+            name: 'settingsCluster',
+            label: t('glossary|Cluster'),
+            url: '/settings/cluster',
+          },
+        ],
+        divider: true,
+      },
+      {
         name: 'cluster',
-        label: selectedClusters.length ? t('Clusters') : t('glossary|Cluster'),
+        label: t('Overview'),
         subtitle: selectedClusters.join('\n') || undefined,
-        icon: 'mdi:hexagon-multiple-outline',
+        icon: 'mdi:view-dashboard',
         subList: [
           {
             name: 'namespaces',
             label: t('glossary|Namespaces'),
+            icon: 'kube:Namespace',
           },
           {
             name: 'nodes',
             label: t('glossary|Nodes'),
+            icon: 'kube:Node',
           },
           {
             name: 'advancedSearch',
             label: t('Advanced Search (Beta)'),
+            icon: 'mdi:search',
           },
         ],
       },
@@ -140,30 +198,37 @@ export const useSidebarItems = (sidebarName: string = DefaultSidebars.IN_CLUSTER
           {
             name: 'Pods',
             label: t('glossary|Pods'),
+            icon: 'kube:Pod',
           },
           {
             name: 'Deployments',
             label: t('glossary|Deployments'),
+            icon: 'kube:Deployment',
           },
           {
             name: 'StatefulSets',
             label: t('glossary|Stateful Sets'),
+            icon: 'kube:StatefulSet',
           },
           {
             name: 'DaemonSets',
             label: t('glossary|Daemon Sets'),
+            icon: 'kube:DaemonSet',
           },
           {
             name: 'ReplicaSets',
             label: t('glossary|Replica Sets'),
+            icon: 'kube:ReplicaSet',
           },
           {
             name: 'Jobs',
             label: t('glossary|Jobs'),
+            icon: 'kube:Job',
           },
           {
             name: 'CronJobs',
             label: t('glossary|CronJobs'),
+            icon: 'kube:CronJob',
           },
         ],
       },
@@ -175,14 +240,17 @@ export const useSidebarItems = (sidebarName: string = DefaultSidebars.IN_CLUSTER
           {
             name: 'persistentVolumeClaims',
             label: t('glossary|Persistent Volume Claims'),
+            icon: 'kube:PersistentVolumeClaim',
           },
           {
             name: 'persistentVolumes',
             label: t('glossary|Persistent Volumes'),
+            icon: 'kube:PersistentVolume',
           },
           {
             name: 'storageClasses',
             label: t('glossary|Storage Classes'),
+            icon: 'kube:StorageClass',
           },
         ],
       },
@@ -194,27 +262,33 @@ export const useSidebarItems = (sidebarName: string = DefaultSidebars.IN_CLUSTER
           {
             name: 'services',
             label: t('glossary|Services'),
+            icon: 'kube:Service',
           },
           {
             name: 'endpoints',
             label: t('glossary|Endpoints'),
+            icon: 'kube:Endpoint',
           },
           {
             name: 'ingresses',
             label: t('glossary|Ingresses'),
+            icon: 'kube:Ingress',
           },
           {
             name: 'ingressclasses',
             label: t('glossary|Ingress Classes'),
+            icon: 'kube:IngressClass',
           },
           {
             name: 'portforwards',
             label: t('glossary|Port Forwarding'),
             hide: !isElectron(),
+            icon: 'kube:Service',
           },
           {
             name: 'NetworkPolicies',
             label: t('glossary|Network Policies'),
+            icon: 'kube:NetworkPolicy',
           },
         ],
       },
@@ -261,14 +335,17 @@ export const useSidebarItems = (sidebarName: string = DefaultSidebars.IN_CLUSTER
           {
             name: 'serviceAccounts',
             label: t('glossary|Service Accounts'),
+            icon: 'kube:ServiceAccount',
           },
           {
             name: 'roles',
             label: t('glossary|Roles'),
+            icon: 'kube:Role',
           },
           {
             name: 'roleBindings',
             label: t('glossary|Role Bindings'),
+            icon: 'kube:RoleBinding',
           },
         ],
       },
@@ -280,64 +357,66 @@ export const useSidebarItems = (sidebarName: string = DefaultSidebars.IN_CLUSTER
           {
             name: 'configMaps',
             label: t('glossary|Config Maps'),
+            icon: 'kube:ConfigMap',
           },
           {
             name: 'secrets',
             label: t('glossary|Secrets'),
+            icon: 'kube:Secrets',
           },
           {
             name: 'horizontalPodAutoscalers',
             label: t('glossary|HPAs'),
+            icon: 'kube:HorizontalPodAutoscaler',
           },
           {
             name: 'verticalPodAutoscalers',
             label: t('glossary|VPAs'),
+            icon: 'kube:VerticalPodAutoscaler',
           },
           {
             name: 'podDisruptionBudgets',
             label: t('glossary|Pod Disruption Budgets'),
+            icon: 'kube:PodDisruptionBudget',
           },
           {
             name: 'resourceQuotas',
             label: t('glossary|Resource Quotas'),
+            icon: 'kube:ResourceQuota',
           },
           {
             name: 'limitRanges',
             label: t('glossary|Limit Ranges'),
+            icon: 'kube:LimitRange',
           },
           {
             name: 'priorityClasses',
             label: t('glossary|Priority Classes'),
+            icon: 'kube:PriorityClass',
           },
           {
             name: 'runtimeClasses',
             label: t('glossary|Runtime Classes'),
+            icon: 'kube:RuntimeClass',
           },
           {
             name: 'leases',
             label: t('glossary|Leases'),
+            icon: 'kube:Lease',
           },
           {
             name: 'mutatingWebhookConfigurations',
             label: t('glossary|Mutating Webhook Configurations'),
+            icon: 'kube:MutatingWebhookConfiguration',
           },
           {
             name: 'validatingWebhookConfigurations',
             label: t('glossary|Validating Webhook Configurations'),
+            icon: 'kube:ValidatingWebhookConfiguration',
           },
         ],
       },
-      {
-        name: 'crds',
-        label: t('glossary|Custom Resources'),
-        icon: 'mdi:puzzle',
-        subList: [
-          {
-            name: 'crs',
-            label: t('translation|Instances'),
-          },
-        ],
-      },
+      crd,
     ];
 
     // List of sidebars, they act as roots for the sidebar tree
@@ -407,6 +486,7 @@ export const useSidebarItems = (sidebarName: string = DefaultSidebars.IN_CLUSTER
     Object.keys(clusters).join(','),
     selectedClusters.join(','),
     t,
+    crd,
   ]);
 
   const unsortedItems =

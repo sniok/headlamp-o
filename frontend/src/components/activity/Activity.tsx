@@ -41,7 +41,9 @@ import React, {
 import { createPortal } from 'react-dom';
 import { useHotkeys } from 'react-hotkeys-hook';
 import { Trans, useTranslation } from 'react-i18next';
+import { useDispatch } from 'react-redux';
 import { useTypedSelector } from '../../redux/hooks';
+import { favoriteSlice } from '../../redux/reducers/reducers';
 import store from '../../redux/stores/store';
 
 const areWindowsEnabled = false;
@@ -335,6 +337,8 @@ export function SingleActivityRenderer({
     };
   }, [location]);
 
+  const dispatch = useDispatch();
+
   return (
     <ActivityContext.Provider value={activity}>
       <Box
@@ -466,6 +470,19 @@ export function SingleActivityRenderer({
               )}
               {!isOverview && (
                 <>
+                  <IconButton
+                    size="small"
+                    title={t('Favorite')}
+                    onClick={() => {
+                      dispatch(
+                        favoriteSlice.actions.add({
+                          activity: activity,
+                        })
+                      );
+                    }}
+                  >
+                    <Icon icon="mdi:star" />
+                  </IconButton>
                   <IconButton
                     size="small"
                     title={t('Snap Left')}

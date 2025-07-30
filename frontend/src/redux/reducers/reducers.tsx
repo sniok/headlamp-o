@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { combineReducers } from 'redux';
 import { activityReducer } from '../../components/activity/Activity';
 import notificationsReducer from '../../components/App/Notifications/notificationsSlice';
@@ -34,6 +35,18 @@ import resourceTableReducer from './../../components/common/Resource/resourceTab
 import detailsViewSectionReducer from './../../components/DetailsViewSection/detailsViewSectionSlice';
 import sidebarReducer from './../../components/Sidebar/sidebarSlice';
 import pluginConfigReducer from './../../plugin/pluginConfigSlice';
+
+export const favoriteSlice = createSlice({
+  name: 'favorites',
+  initialState: {
+    items: [],
+  } as { items: Array<{ url: string; title: string } | any> },
+  reducers: {
+    add(state, action: PayloadAction<{ url: string; title: string } | any>) {
+      state.items.push(action.payload);
+    },
+  },
+});
 
 const reducers = combineReducers({
   filter: filterReducer,
@@ -56,6 +69,7 @@ const reducers = combineReducers({
   graphView: graphViewReducer,
   clusterProvider: clusterProviderReducer,
   activity: activityReducer,
+  favorites: favoriteSlice.reducer,
 });
 
 export type RootState = ReturnType<typeof reducers>;

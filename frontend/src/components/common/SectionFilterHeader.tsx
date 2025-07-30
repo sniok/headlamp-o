@@ -21,7 +21,6 @@ import { useDispatch } from 'react-redux';
 import { useLocation } from 'react-router-dom';
 import { setNamespaceFilter } from '../../redux/filterSlice';
 import { useTypedSelector } from '../../redux/hooks';
-import { NamespacesAutocomplete } from './NamespacesAutocomplete';
 import SectionHeader, { SectionHeaderProps } from './SectionHeader';
 
 /**
@@ -89,10 +88,6 @@ export default function SectionFilterHeader(props: SectionFilterHeaderProps) {
 
   if (!!propsActions) {
     actions = actions.concat(propsActions);
-  }
-
-  if (!noNamespaceFilter) {
-    actions.push(<NamespacesAutocomplete />);
   }
 
   return (

@@ -40,7 +40,7 @@ import { ActivitiesRenderer } from '../activity/Activity';
 import ActionsNotifier from '../common/ActionsNotifier';
 import AlertNotification from '../common/AlertNotification';
 import DetailsDrawer from '../common/Resource/DetailsDrawer';
-import Sidebar, { NavigationTabs } from '../Sidebar';
+import { NewSidebar } from '../Sidebar/NewSidebar';
 import RouteSwitcher from './RouteSwitcher';
 import TopBar from './TopBar';
 import VersionDialog from './VersionDialog';
@@ -259,7 +259,7 @@ export default function Layout({}: LayoutProps) {
               gridTemplateColumns: 'min-content 1fr',
             }}
           >
-            <Sidebar />
+            <NewSidebar />
             <Main
               id="main"
               sx={{
@@ -277,7 +277,7 @@ export default function Layout({}: LayoutProps) {
               <Box sx={{ height: '100%' }}>
                 <Div />
                 <Container {...containerProps} sx={{ height: '100%' }}>
-                  <NavigationTabs />
+                  {/* <NavigationTabs /> */}
                   {arePluginsLoaded && (
                     <RouteSwitcher
                       requiresToken={() => {

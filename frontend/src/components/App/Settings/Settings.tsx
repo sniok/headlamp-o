@@ -18,7 +18,7 @@ import Box from '@mui/material/Box';
 import Switch from '@mui/material/Switch';
 import Typography from '@mui/material/Typography';
 import { capitalize } from 'lodash';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useDispatch } from 'react-redux';
 import LocaleSelect from '../../../i18n/LocaleSelect/LocaleSelect';
@@ -38,6 +38,7 @@ import NumRowsInput from './NumRowsInput';
 import { ThemePreview } from './ThemePreview';
 
 export default function Settings() {
+  const dispatch = useDispatch();
   const { t } = useTranslation(['translation']);
   const settingsObj = useSettings();
   const storedTimezone = settingsObj.timezone;
@@ -48,8 +49,14 @@ export default function Settings() {
     storedTimezone || Intl.DateTimeFormat().resolvedOptions().timeZone
   );
   const [sortSidebar, setSortSidebar] = useState<boolean>(storedSortSidebar);
+  const newSidebar = settingsObj.newSidebar;
+  const setNewSidebar = useCallback(
+    (value?: boolean) => {
+      dispatch(setAppSettings({ newSiderbar: value }));
+    },
+    [dispatch]
+  );
   const [useEvict, setUseEvict] = useState<boolean>(storedUseEvict);
-  const dispatch = useDispatch();
   const themeName = useTypedSelector(state => state.theme.name);
   const appThemes = useAppThemes();
 
@@ -145,6 +152,16 @@ export default function Settings() {
               />
             ),
             nameID: sidebarLabelID,
+          },
+          {
+            name: t('translation|New sidebar'),
+            value: (
+              <Switch
+                color="primary"
+                checked={newSidebar}
+                onChange={e => setNewSidebar(e.target.checked)}
+              />
+            ),
           },
           {
             name: t('translation|Use evict for pod deletion'),

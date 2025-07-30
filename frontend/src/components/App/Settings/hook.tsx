@@ -15,9 +15,12 @@
  */
 
 import { useEffect, useState } from 'react';
+import { ConfigState } from '../../../redux/configSlice';
 import { useTypedSelector } from '../../../redux/hooks';
 
-export const useSettings = function (settingName?: string) {
+export function useSettings(): ConfigState['settings'];
+export function useSettings<T extends string>(settingName: T): ConfigState['settings'][T];
+export function useSettings(settingName?: string) {
   const storeSettingEntries = useTypedSelector(state =>
     settingName ? state.config.settings[settingName] : state.config.settings
   );
@@ -28,4 +31,4 @@ export const useSettings = function (settingName?: string) {
   }, [storeSettingEntries]);
 
   return settingEntries;
-};
+}

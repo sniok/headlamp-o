@@ -54,6 +54,7 @@ export interface ConfigState {
      */
     timezone: string;
     useEvict: boolean;
+    newSiderbar?: boolean;
     [key: string]: any;
   };
 }

@@ -44,6 +44,7 @@ import { useTypedSelector } from '../../redux/hooks';
 import { uiSlice } from '../../redux/uiSlice';
 import { SettingsButton } from '../App/Settings';
 import { ClusterTitle } from '../cluster/Chooser';
+import { NamespacesAutocomplete } from '../common';
 import ErrorBoundary from '../common/ErrorBoundary';
 import { GlobalSearch } from '../globalSearch/GlobalSearch';
 import HeadlampButton from '../Sidebar/HeadlampButton';
@@ -369,8 +370,8 @@ export const PureTopBar = memo(
       {
         id: DefaultAppBarAction.CLUSTER,
         action: (
-          <Box>
-            <ClusterTitle cluster={cluster} clusters={clusters} onClick={handleMobileMenuClose} />
+          <Box sx={{ mr: 1 }}>
+            <NamespacesAutocomplete />
           </Box>
         ),
       },
@@ -453,6 +454,21 @@ export const PureTopBar = memo(
               </>
             ) : (
               <>
+                <Box
+                  sx={{
+                    // marginRight: 1,
+                    height: '100%',
+                    width: '64px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    marginLeft: '-20px',
+                    cursor: 'pointer',
+                  }}
+                  onClick={() => dispatch(setWhetherSidebarOpen(!isSidebarOpen))}
+                >
+                  <Icon icon="mdi:menu" width="24px" height="24px" />
+                </Box>
                 <AppLogo />
                 <AppBarActions
                   appBarActions={processAppBarActions(allAppBarActions, appBarActionsProcessors)}

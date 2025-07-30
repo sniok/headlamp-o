@@ -220,11 +220,13 @@ function ClusterChooserPopup(props: ChooserPopupPros) {
       onClose={handleClose}
       anchorOrigin={{
         vertical: 'top',
-        horizontal: isSmallScreen ? 'center' : 'left',
+        // horizontal: isSmallScreen ? 'center' : 'left',
+        horizontal: 'right',
       }}
       transformOrigin={{
         vertical: isSmallScreen ? 'center' : 'top',
-        horizontal: isSmallScreen ? 'center' : 'left',
+        // horizontal: isSmallScreen ? 'center' : 'left',
+        // horizontal: 'right',
       }}
       aria-labelledby="chooser-dialog-title"
       aria-busy={clusters === null}
