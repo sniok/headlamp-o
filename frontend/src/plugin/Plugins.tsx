@@ -25,6 +25,9 @@ import { useTypedSelector } from '../redux/hooks';
 import { fetchAndExecutePlugins } from './index';
 import { pluginsLoaded, setPluginSettings } from './pluginsSlice';
 
+const MAX_RETRIES = 10;
+const RETRY_INTERVAL = 1_000;
+
 /**
  * For discovering and executing plugins.
  *
@@ -45,43 +48,63 @@ export default function Plugins() {
 
   // only run on first load
   useEffect(() => {
-    fetchAndExecutePlugins(
-      settingsPlugins,
-      updatedSettingsPackages => {
-        dispatch(setPluginSettings(updatedSettingsPackages));
-      },
-      incompatiblePlugins => {
-        const pluginList = Object.values(incompatiblePlugins)
-          .map(p => p.name)
-          .join(', ');
-        const message = t(
-          'translation|Warning. Incompatible plugins disabled: ({{ pluginList }})',
-          { pluginList }
-        );
-        console.warn(message);
+    const loadPluginsWithRetries = async () => {
+      for (let i = 0; i < MAX_RETRIES; i++) {
+        try {
+          await fetchAndExecutePlugins(
+            settingsPlugins,
+            updatedSettingsPackages => {
+              dispatch(setPluginSettings(updatedSettingsPackages));
+            },
+            incompatiblePlugins => {
+              const pluginList = Object.values(incompatiblePlugins)
+                .map(p => p.name)
+                .join(', ');
+              const message = t(
+                'translation|Warning. Incompatible plugins disabled: ({{ pluginList }})',
+                { pluginList }
+              );
+              console.warn(message);
 
-        if (isElectron()) {
-          enqueueSnackbar(message, {
-            action: (snackbarId: SnackbarKey) => (
-              <>
-                <Button
-                  color="secondary"
-                  size="small"
-                  onClick={() => {
-                    history.push('/settings/plugins');
-                    closeSnackbar(snackbarId);
-                  }}
-                >
-                  {t('Settings')}
-                </Button>
-              </>
-            ),
-          });
-        } else {
-          enqueueSnackbar(message);
+              if (isElectron()) {
+                enqueueSnackbar(message, {
+                  action: (snackbarId: SnackbarKey) => (
+                    <>
+                      <Button
+                        color="secondary"
+                        size="small"
+                        onClick={() => {
+                          history.push('/settings/plugins');
+                          closeSnackbar(snackbarId);
+                        }}
+                      >
+                        {t('Settings')}
+                      </Button>
+                    </>
+                  ),
+                });
+              } else {
+                enqueueSnackbar(message);
+              }
+            }
+          );
+          // Succeeded, so we can stop.
+          return;
+        } catch (error) {
+          console.error(
+            `Failed to fetch and execute plugins (attempt ${i + 1}/${MAX_RETRIES}):`,
+            error
+          );
+          if (i >= MAX_RETRIES - 1) {
+            console.error('All retries failed for loading plugins.');
+            throw error;
+          }
+          await new Promise(res => setTimeout(res, RETRY_INTERVAL));
         }
       }
-    )
+    };
+
+    loadPluginsWithRetries()
       .finally(() => {
         dispatch(pluginsLoaded());
         // Warn the app (if we're in app mode).
