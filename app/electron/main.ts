@@ -54,6 +54,9 @@ import {
 import { addRunCmdConsent, removeRunCmdConsent, runScript, setupRunCmdHandlers } from './runCmd';
 import { cleanupHeadlampTray, createHeadlampTray } from './tray';
 import windowSize from './windowSize';
+import { setupAzureIPCHandlers } from './azure-api';
+
+setupAzureIPCHandlers();
 
 if (process.env.APPIMAGE) {
   app.commandLine.appendSwitch('disable-setuid-sandbox');
@@ -117,7 +120,7 @@ const args = yargs(hideBin(process.argv))
         console.error(`Error listing plugins: ${error}`);
         process.exit(1);
       }
-    }
+    },
   )
   .options({
     headless: {
@@ -310,13 +313,13 @@ class PluginManagerEventListeners {
       console.error('Error fetching plugin info:', error);
       dialog.showErrorBox(
         i18n.t('Failed to fetch plugin info'),
-        i18n.t('An error occurred while fetching plugin info from {{  URL }}.', { URL })
+        i18n.t('An error occurred while fetching plugin info from {{  URL }}.', { URL }),
       );
       return { type: 'error', message: 'Failed to fetch plugin info' };
     }
 
     const { matchingExtraFiles } = getMatchingExtraFiles(
-      pluginInfo?.extraFiles ? pluginInfo?.extraFiles : {}
+      pluginInfo?.extraFiles ? pluginInfo?.extraFiles : {},
     );
     const extraUrls = matchingExtraFiles.map(file => file.url);
     const allUrls = [pluginInfo.archiveURL, ...extraUrls].join(', ');
@@ -370,7 +373,7 @@ class PluginManagerEventListeners {
       progress => {
         updateCache(progress);
       },
-      controller.signal
+      controller.signal,
     );
 
     return { type: 'info', message: 'Installation started' };
@@ -407,7 +410,7 @@ class PluginManagerEventListeners {
       progress => {
         updateCache(progress);
       },
-      controller.signal
+      controller.signal,
     );
   }
 
@@ -460,7 +463,7 @@ class PluginManagerEventListeners {
       PluginManager.list(destinationFolder, progress => {
         event.sender.send(
           'plugin-manager',
-          JSON.stringify({ identifier: identifier, ...progress })
+          JSON.stringify({ identifier: identifier, ...progress }),
         );
       });
       return;
@@ -520,7 +523,7 @@ class PluginManagerEventListeners {
           type: 'success',
           message: 'Plugins Listed',
           data: allPlugins,
-        })
+        }),
       );
     } catch (error) {
       event.sender.send(
@@ -529,7 +532,7 @@ class PluginManagerEventListeners {
           identifier: identifier,
           type: 'error',
           message: error instanceof Error ? error.message : String(error),
-        })
+        }),
       );
     }
   }
@@ -549,7 +552,7 @@ class PluginManagerEventListeners {
       cacheEntry.controller.abort();
       event.sender.send(
         'plugin-manager',
-        JSON.stringify({ type: 'success', message: 'cancelled' })
+        JSON.stringify({ type: 'success', message: 'cancelled' }),
       );
     }
   }
@@ -572,7 +575,7 @@ class PluginManagerEventListeners {
           identifier: identifier,
           ...cacheEntry.progress,
           percentage: cacheEntry.percentage,
-        })
+        }),
       );
     } else {
       event.sender.send(
@@ -580,7 +583,7 @@ class PluginManagerEventListeners {
         JSON.stringify({
           type: 'error',
           message: 'No such operation in progress',
-        })
+        }),
       );
     }
   }
@@ -716,8 +719,8 @@ async function findAvailablePort(startPort: number): Promise<number> {
     if (headlampPIDs && headlampPIDs.length > 0) {
       console.info(
         `Port ${port} is occupied by Headlamp process(es) ${headlampPIDs.join(
-          ', '
-        )}, trying next port...`
+          ', ',
+        )}, trying next port...`,
       );
       continue;
     }
@@ -734,7 +737,7 @@ async function findAvailablePort(startPort: number): Promise<number> {
   }
 
   throw new Error(
-    `Could not find an available port after ${MAX_PORT_ATTEMPTS} attempts starting from ${startPort}`
+    `Could not find an available port after ${MAX_PORT_ATTEMPTS} attempts starting from ${startPort}`,
   );
 }
 
@@ -1392,7 +1395,7 @@ function startElectron() {
               const resp = dialog.showMessageBoxSync(mainWindow, {
                 title: i18n.t('Another process is running'),
                 message: i18n.t(
-                  'Looks like another process is already running. Continue by terminating that process automatically, or quit?'
+                  'Looks like another process is already running. Continue by terminating that process automatically, or quit?',
                 ),
                 type: 'question',
                 buttons: [i18n.t('Continue'), i18n.t('Quit')],
@@ -1424,7 +1427,7 @@ function startElectron() {
                 title: i18n.t('Failed to quit the other running process'),
                 message: i18n.t(
                   `Could not quit the other running process, PIDs: {{ process_list }}. Please stop that process and relaunch the app.`,
-                  { process_list: processes }
+                  { process_list: processes },
                 ),
               });
 
@@ -1453,7 +1456,7 @@ function startElectron() {
             title: i18n.t('No available ports'),
             message: i18n.t(
               'Could not find an available port. There are processes running on ports {{startPort}}-{{endPort}}. Terminate these processes and retry?',
-              { startPort: defaultPort, endPort: defaultPort + MAX_PORT_ATTEMPTS - 1 }
+              { startPort: defaultPort, endPort: defaultPort + MAX_PORT_ATTEMPTS - 1 },
             ),
             type: 'warning',
             buttons: [i18n.t('Terminate and Retry'), i18n.t('Quit')],
@@ -1468,7 +1471,7 @@ function startElectron() {
               } catch (e: unknown) {
                 const killMessage = e instanceof Error ? e.message : String(e);
                 console.error(
-                  `Failed to kill headlamp-server process with PID ${pid}: ${killMessage}`
+                  `Failed to kill headlamp-server process with PID ${pid}: ${killMessage}`,
                 );
               }
             });
@@ -1486,7 +1489,7 @@ function startElectron() {
               console.error('Failed to start server after killing processes:', retryMessage);
               dialog.showErrorBox(
                 i18n.t('Failed to start'),
-                i18n.t('Could not start the server even after terminating existing processes.')
+                i18n.t('Could not start the server even after terminating existing processes.'),
               );
               mainWindow.close();
             }
@@ -1500,8 +1503,8 @@ function startElectron() {
             i18n.t('No available ports'),
             i18n.t(
               'Could not find an available port in the range {{startPort}}-{{endPort}}. Please free up a port and try again.',
-              { startPort: defaultPort, endPort: defaultPort + MAX_PORT_ATTEMPTS - 1 }
-            )
+              { startPort: defaultPort, endPort: defaultPort + MAX_PORT_ATTEMPTS - 1 },
+            ),
           );
           mainWindow.close();
         }
@@ -1591,7 +1594,7 @@ function startElectron() {
             ...details.responseHeaders,
             'Set-Cookie':
               details.responseHeaders?.['Set-Cookie']?.map(it =>
-                it.replace('SameSite=Strict', 'SameSite=None;Secure=true')
+                it.replace('SameSite=Strict', 'SameSite=None;Secure=true'),
               ) ?? [],
           },
         });
@@ -1636,7 +1639,7 @@ function startElectron() {
       } catch (e) {
         dialog.showErrorBox(
           i18n.t('Invalid URL'),
-          i18n.t('Application opened with an invalid URL: {{ url }}', { url })
+          i18n.t('Application opened with an invalid URL: {{ url }}', { url }),
         );
         return;
       }
@@ -1715,7 +1718,7 @@ function startElectron() {
       'open-plugin-folder',
       (
         event: IpcMainEvent,
-        pluginInfo: { folderName: string; type: 'development' | 'user' | 'shipped' }
+        pluginInfo: { folderName: string; type: 'development' | 'user' | 'shipped' },
       ) => {
         let folderPath: string | null = null;
 
@@ -1732,7 +1735,7 @@ function startElectron() {
             console.error('Failed to open plugin folder:', err);
           });
         }
-      }
+      },
     );
 
     // Also add bundled plugin bin directories to PATH
@@ -1765,7 +1768,7 @@ function startElectron() {
     ['arm', 'arm64'].includes(process.arch)
   ) {
     console.info(
-      'Disabling GPU hardware acceleration. Reason: known graphical issues in Linux on ARM (use --disable-gpu=false to force it if needed).'
+      'Disabling GPU hardware acceleration. Reason: known graphical issues in Linux on ARM (use --disable-gpu=false to force it if needed).',
     );
     disableGPU = true;
   }
@@ -1883,7 +1886,7 @@ if (isHeadlessMode) {
 
       // Give 1s for backend to start
       setTimeout(() => shell.openExternal(`http://localhost:${actualPort}`), 1000);
-    }
+    },
   );
 } else {
   if (!isRunningScript) {

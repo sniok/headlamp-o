@@ -88,3 +88,11 @@ contextBridge.exposeInMainWorld('desktopApi', {
     ipcRenderer.send('cluster-changed', cluster);
   },
 });
+
+contextBridge.exposeInMainWorld('azureApi', {
+  getToken: ({ scopes }: { scopes: string | string[] }) =>
+    ipcRenderer.invoke('azure-get-token', { scopes }),
+  userInfo: () => ipcRenderer.invoke('azure-user-info'),
+  login: () => ipcRenderer.invoke('azure-login'),
+  logout: () => ipcRenderer.invoke('azure-login'),
+});

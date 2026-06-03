@@ -18,6 +18,12 @@ const commonOptions = {
   logOverride: {
     'empty-import-meta': 'silent',
   },
+  alias: {
+    open: path.resolve('electron/shims/open-shim.ts'),
+  },
+  loader: {
+    '.node': 'file',
+  },
 };
 
 const entryPoints = [
