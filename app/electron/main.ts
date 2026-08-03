@@ -1390,6 +1390,7 @@ function adjustZoom(delta: number) {
 
 function startElectron() {
   console.info('App starting...');
+  addRunCmdConsent({ name: 'azure-aks' });
 
   // Increase max listeners to prevent false positive warnings
   // The app legitimately needs multiple IPC listeners (currently 11)

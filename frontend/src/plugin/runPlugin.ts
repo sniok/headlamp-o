@@ -208,6 +208,7 @@ export function identifyPackages(
       'user-plugins/headlamp_ai-assistantprerelease',
       'static-plugins/headlamp_ai-assistantprerelease',
     ],
+    'azure-aks': ['plugins/azure-aks', 'static-plugins/azure-aks'],
   };
 
   if (isDevelopmentMode) {
@@ -224,6 +225,7 @@ export function identifyPackages(
       '@headlamp-k8s/ai-assistant',
       '@headlamp-k8s/ai-assistantprerelease',
     ],
+    'azure-aks': ['azure-aks'],
   };
   const isPackage: Record<string, boolean> = {};
   for (const key in pluginPaths) {
